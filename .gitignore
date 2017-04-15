@@ -1,0 +1,15 @@
+## Ignore Vagrant specific files/directories
+.vagrant/
+*.log
+
+## Ignore JetBrains IDE specific files/directories
+# Dir-based project format
+.idea/
+
+# File-based project format
+*.iws
+*.iml
+*.ipr
+
+# out directory
+out/
