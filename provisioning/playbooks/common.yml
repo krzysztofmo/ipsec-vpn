@@ -12,3 +12,4 @@
     - setup: # aka gather_facts
   roles:
   - { role: ipsec }
+  - { role: firewall }

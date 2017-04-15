@@ -1,0 +1,39 @@
+#jinja2: lstrip_blocks: "True"
+
+table filter {
+  chain INPUT {
+    # Deny connections by default
+    policy DROP;
+
+    # Connection tracking
+    mod state state INVALID DROP;
+    mod state state (ESTABLISHED RELATED) ACCEPT;
+
+    # Allow local connections
+    interface lo ACCEPT;
+
+    # Respond to ping
+    proto icmp icmp-type (echo-request echo-reply) ACCEPT;
+
+    # Allow SSH connections
+    proto tcp dport ssh ACCEPT;
+
+    {# Allow encrypted connections between hosts from ipsec_peers.yml #}
+    saddr {{ ipsec.right_ip }} proto esp ACCEPT;
+    saddr {{ ipsec.right_ip }} proto udp dport (500 4500) ACCEPT;
+  }
+
+  # Allow outgoing connection by default
+  chain OUTPUT {
+    policy ACCEPT;
+
+    {# Block unencrypted connections between hosts from ipsec_peers.yml #}
+    daddr {{ ipsec.right_ip }} proto esp ACCEPT;
+    daddr {{ ipsec.right_ip }} proto udp dport (500 4500) ACCEPT;
+    daddr {{ ipsec.right_ip }} proto icmp icmp-type (echo-request echo-reply) ACCEPT;
+    daddr {{ ipsec.right_ip }} REJECT reject-with icmp-port-unreachable;
+  }
+
+  # no connection forwarding
+  chain FORWARD policy DROP;
+}

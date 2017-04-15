@@ -1,0 +1,24 @@
+---
+- name: Ensure /etc/ferm directory exists
+  file:
+    path: /etc/ferm
+    state: directory
+
+- name: Copy Ferm config from localhost to server; this MUST be done BEFORE ferm installation because of ferm default rules
+  template:
+    src: ferm.conf.j2
+    dest: /etc/ferm/ferm.conf
+    mode: 0600
+  register: copy_ferm_config_task
+
+- name: Install Ferm
+  apt:
+    name: ferm
+    state: present
+
+# We need to set the rules immediately, so the letsencrypt role can connect to 443 via dnat'ed 8443 port.
+# This also ensures, that the rules are set even if ansible script fails (by default handlers are not fired
+# in such case)
+- name: Install ferm ruleset
+  command: ferm /etc/ferm/ferm.conf
+  when: copy_ferm_config_task.changed
