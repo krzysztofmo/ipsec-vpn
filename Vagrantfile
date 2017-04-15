@@ -15,52 +15,149 @@ Vagrant.configure("2") do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/xenial64"
 
-  SERVER_IP = '192.168.1.10'
-  CLIENT_IP = '192.168.1.20'
-  NETMASK = '255.255.255.0'
+  HOSTS = [:client, :server]
+  ADDRESSES = {
+      client: '192.168.1.20',
+      server: '192.168.1.10'
+  }
 
-  config.vm.define 'server' do |server_config|
-    server_config.vm.hostname = 'server'
-    server_config.vm.network :private_network,
-                             ip: SERVER_IP,
-                             netmask: NETMASK,
+  HOSTS.each do |host|
+    config.vm.define host do |host_config|
+      host_config.vm.hostname = "#{host}"
+      host_config.vm.network :private_network,
+                             ip: ADDRESSES[host],
+                             netmask: '255.255.255.0',
                              virtualbox__intnet: true
-    server_config.vm.provision :ansible do |ansible|
-      ansible.playbook = 'provision/playbooks/server.yml'
-      ansible.host_vars = {
-          server: {
-              ipsec: "'#{{
-                  conn_name: 'client',
-                  left_ip: SERVER_IP,
-                  right_ip: CLIENT_IP,
-                  left_subnet: '10.1.0.10/32'
-              }.to_json}'"
+      if host == HOSTS.last
+        host_config.vm.provision :ansible do |ansible|
+          ansible.limit = 'all'
+          ansible.playbook = 'provisioning/playbook.yml'
+          ansible.host_vars = {
+              client: {
+                  ipsec: "'#{{
+                      conn_name: 'server',
+                      left_ip: ADDRESSES[:client],
+                      right_ip: ADDRESSES[:server],
+                      right_subnet: '10.1.0.10/32'
+                  }.to_json}'"
+              },
+              server: {
+                  ipsec: "'#{{
+                      conn_name: 'client',
+                      left_ip: ADDRESSES[:server],
+                      right_ip: ADDRESSES[:client],
+                      left_subnet: '10.1.0.10/32'
+                  }.to_json}'"
+              }
           }
-      }
-
+        end
+      end
     end
   end
 
-  config.vm.define 'client' do |client_config|
-    client_config.vm.hostname = 'client'
-    client_config.vm.network :private_network,
-                             ip: CLIENT_IP,
-                             netmask: NETMASK,
-                             virtualbox__intnet: true
-    client_config.vm.provision :ansible do |ansible|
-      ansible.playbook = 'provision/playbooks/client.yml'
-      ansible.host_vars = {
-          client: {
-              ipsec: "'#{{
-                  conn_name: 'server',
-                  left_ip: CLIENT_IP,
-                  right_ip: SERVER_IP,
-                  right_subnet: '10.1.0.10/32'
-              }.to_json}'"
-          }
-      }
-    end
-  end
+
+  # HOSTS.each do |host|
+  #   config.vm.define host[:name] do |host_config|
+  #     host_config.vm.hostname = host[:name]
+  #     host_config.vm.network :private_network,
+  #                            ip: host[:ip],
+  #                            netmask: NETMASK,
+  #                            virtualbox__intnet: true
+  #     if host[:name] == HOSTS.last[:name]
+  #       host_config.vm.provision :ansible do |ansible|
+  #         ansible.limit = 'all'
+  #         ansible.playbook = 'provisioning/site.yml'
+  #         ansible.host_vars = {
+  #             client: {
+  #                 ipsec: "'#{{
+  #                     conn_name: 'server',
+  #                     left_ip: CLIENT_IP,
+  #                     right_ip: SERVER_IP,
+  #                     right_subnet: '10.1.0.10/32'
+  #                 }.to_json}'"
+  #             },
+  #             server: {
+  #                 ipsec: "'#{{
+  #                     conn_name: 'client',
+  #                     left_ip: SERVER_IP,
+  #                     right_ip: CLIENT_IP,
+  #                     left_subnet: '10.1.0.10/32'
+  #                 }.to_json}'"
+  #             }
+  #         }
+  #       end
+  #     end
+  #   end
+  # end
+
+  # config.vm.define 'server' do |server_config|
+  #   server_config.vm.hostname = 'server'
+  #   server_config.vm.network :private_network,
+  #                            ip: SERVER_IP,
+  #                            netmask: NETMASK,
+  #                            virtualbox__intnet: true
+  #   # server_config.vm.provision :ansible do |ansible|
+  #   #   ansible.playbook = 'provision/playbooks/server.yml'
+  #   #   ansible.host_vars = {
+  #   #       server: {
+  #   #           ipsec: "'#{{
+  #   #               conn_name: 'client',
+  #   #               left_ip: SERVER_IP,
+  #   #               right_ip: CLIENT_IP,
+  #   #               left_subnet: '10.1.0.10/32'
+  #   #           }.to_json}'"
+  #   #       }
+  #   #   }
+  #   #
+  #   # end
+  # end
+
+  # config.vm.define 'client' do |client_config|
+  #   client_config.vm.hostname = 'client'
+  #   client_config.vm.network :private_network,
+  #                            ip: CLIENT_IP,
+  #                            netmask: NETMASK,
+  #                            virtualbox__intnet: true
+  #   # client_config.vm.provision :ansible do |ansible|
+  #   #   ansible.playbook = 'provision/playbooks/client.yml'
+  #   #   ansible.host_vars = {
+  #   #       client: {
+  #   #           ipsec: "'#{{
+  #   #               conn_name: 'server',
+  #   #               left_ip: CLIENT_IP,
+  #   #               right_ip: SERVER_IP,
+  #   #               right_subnet: '10.1.0.10/32'
+  #   #           }.to_json}'"
+  #   #       }
+  #   #   }
+  #   # end
+  # end
+
+  # config.vm.provision :ansible do |ansible|
+  #   ansible.limit = 'all'
+  #   ansible.playbook = 'provisioning/site.yml'
+  #   ansible.host_vars = {
+  #       client: {
+  #           ipsec: "'#{{
+  #               conn_name: 'server',
+  #               left_ip: CLIENT_IP,
+  #               right_ip: SERVER_IP,
+  #               right_subnet: '10.1.0.10/32'
+  #           }.to_json}'"
+  #       },
+  #       server: {
+  #           ipsec: "'#{{
+  #               conn_name: 'client',
+  #               left_ip: SERVER_IP,
+  #               right_ip: CLIENT_IP,
+  #               left_subnet: '10.1.0.10/32'
+  #           }.to_json}'"
+  #       }
+  #   }
+  #   ansible.groups = {
+  #       'all:children' => %w(client server)
+  #   }
+  # end
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs

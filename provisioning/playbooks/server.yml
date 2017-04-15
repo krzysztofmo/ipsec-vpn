@@ -1,6 +1,4 @@
 ---
-- include: common.yml
-
 - hosts: server
   become: yes
   become_user: root
