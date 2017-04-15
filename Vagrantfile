@@ -6,6 +6,7 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
+  require 'json'
   # The most common configuration options are documented and commented below.
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
@@ -26,6 +27,17 @@ Vagrant.configure("2") do |config|
                              virtualbox__intnet: true
     server_config.vm.provision :ansible do |ansible|
       ansible.playbook = 'provision/playbooks/server.yml'
+      ansible.host_vars = {
+          server: {
+              ipsec: "'#{{
+                  conn_name: 'client',
+                  left_ip: SERVER_IP,
+                  right_ip: CLIENT_IP,
+                  left_subnet: '10.1.0.10/32'
+              }.to_json}'"
+          }
+      }
+
     end
   end
 
@@ -37,6 +49,16 @@ Vagrant.configure("2") do |config|
                              virtualbox__intnet: true
     client_config.vm.provision :ansible do |ansible|
       ansible.playbook = 'provision/playbooks/client.yml'
+      ansible.host_vars = {
+          client: {
+              ipsec: "'#{{
+                  conn_name: 'server',
+                  left_ip: CLIENT_IP,
+                  right_ip: SERVER_IP,
+                  right_subnet: '10.1.0.10/32'
+              }.to_json}'"
+          }
+      }
     end
   end
 

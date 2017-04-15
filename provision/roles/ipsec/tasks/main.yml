@@ -1,0 +1,35 @@
+---
+- name: Install strongSwan
+  apt:
+    name: strongswan
+    state: present
+
+- name: Copy strongSwan configuration
+  copy:
+    src: ipsec.conf
+    dest: /etc/ipsec.conf
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart strongswan
+
+- name: Create configuration for
+  template:
+    src: "{{ item }}.j2"
+    dest: /etc/{{ item }}
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart strongswan
+  with_items:
+  - ipsec.secrets
+  - strongswan.conf
+
+- name: Create connection
+  template:
+    src: connection.conf.j2
+    dest: /etc/ipsec.d/{{ ipsec.conn_name }}.conf
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart strongswan

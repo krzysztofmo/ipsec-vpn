@@ -10,3 +10,9 @@
       changed_when: output.stdout != ""
       tags: always
     - setup: # aka gather_facts
+
+- hosts: all
+  become: yes
+  become_user: root
+  roles:
+  - { role: ipsec }
