@@ -14,6 +14,29 @@ Vagrant.configure("2") do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/xenial64"
 
+  SERVER_IP = '192.168.1.10'
+  CLIENT_IP = '192.168.1.20'
+  NETMASK = '255.255.255.0'
+
+  config.vm.define :server do |server_config|
+    server_config.vm.hostname = "#{host}"
+    server_config.vm.network :private_network,
+                           ip: SERVER_IP,
+                           netmask: NETMASK,
+                           virtualbox__intnet: true
+
+  end
+
+  config.vm.define :client do |client_config|
+    client_config.vm.hostname = "#{host}"
+    client_config.vm.network :private_network,
+                             ip: CLIENT_IP,
+                             netmask: NETMASK,
+                             virtualbox__intnet: true
+
+  end
+
+
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
   # `vagrant box outdated`. This is not recommended.
