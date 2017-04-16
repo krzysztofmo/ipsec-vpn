@@ -1,0 +1,22 @@
+# ipsec.conf - strongSwan IPsec configuration file
+
+config setup
+  # uniqueids=never
+  charondebug="cfg 2, dmn 2, ike 2, net 2"
+
+conn %default
+  ike=aes256-sha256-modp2048!
+  esp=aes256-sha256-modp2048!
+  #dpdaction=clear
+  #dpddelay=300s
+  #rekey=no
+  left={{ ipsec.left_ip }}
+  #leftsubnet=0.0.0.0/0
+  right={{ ipsec.right_ip }}
+  #rightdns=8.8.8.8,8.8.4.4
+  #rightsourceip=172.16.16.0/24
+
+conn ipsec-ikev2
+  authby = secret
+  keyexchange=ikev2
+  auto=add

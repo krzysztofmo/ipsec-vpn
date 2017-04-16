@@ -1,0 +1,7 @@
+---
+- hosts: server
+  become: yes
+  become_user: root
+  roles:
+  - { role: server-kernel-params }
+  - { role: firewall }

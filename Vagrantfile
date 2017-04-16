@@ -6,6 +6,7 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
+  require 'json'
   # The most common configuration options are documented and commented below.
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
@@ -14,26 +15,46 @@ Vagrant.configure("2") do |config|
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "ubuntu/xenial64"
 
-  SERVER_IP = '192.168.1.10'
-  CLIENT_IP = '192.168.1.20'
-  NETMASK = '255.255.255.0'
+  HOSTS = [:client, :server]
+  ADDRESSES = {
+      client: '192.168.1.20',
+      server: '192.168.1.10'
+  }
 
-  config.vm.define :server do |server_config|
-    server_config.vm.hostname = "#{host}"
-    server_config.vm.network :private_network,
-                           ip: SERVER_IP,
-                           netmask: NETMASK,
-                           virtualbox__intnet: true
-
-  end
-
-  config.vm.define :client do |client_config|
-    client_config.vm.hostname = "#{host}"
-    client_config.vm.network :private_network,
-                             ip: CLIENT_IP,
-                             netmask: NETMASK,
+  HOSTS.each do |host|
+    config.vm.define host do |host_config|
+      host_config.vm.hostname = "#{host}"
+      host_config.vm.network :private_network,
+                             ip: ADDRESSES[host],
+                             netmask: '255.255.255.0',
                              virtualbox__intnet: true
-
+      if host == HOSTS.last
+        host_config.vm.provision :ansible do |ansible|
+          ansible.limit = 'all'
+          ansible.playbook = 'provisioning/playbook.yml'
+          ansible.host_vars = {
+              client: {
+                  ipsec: "'#{{
+                      conn_name: 'server',
+                      ip: ADDRESSES[:client],
+                      left_ip: '%any',
+                      right_ip: ADDRESSES[:server],
+                      right_subnet: '10.1.0.10/32'
+                  }.to_json}'"
+              },
+              server: {
+                  ipsec: "'#{{
+                      conn_name: 'client',
+                      ip: ADDRESSES[:server],
+                      left_ip: '%any',
+                      right_ip: '%any',
+                      left_subnet: '10.1.0.10/32'
+                  }.to_json}'"
+              }
+          }
+        end
+      end
+    end
   end
 
 

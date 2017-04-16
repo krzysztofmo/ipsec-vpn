@@ -1,0 +1,27 @@
+---
+# Set ip forwarding on in /proc and in the sysctl file and reload if necessary
+- name: Set ip forwarding on
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+# Disable acceptance of all ICMP redirected packets on all interfaces
+- name: Disable acceptance of IPv4 redirected packets
+  sysctl:
+    name: net.ipv4.conf.all.accept_redirects
+    value: 0
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+# Disable sending of all IPv4 ICMP redirected packets on all interfaces
+- name: Disable sending of IPv4 redirected packets
+  sysctl:
+    name: net.ipv4.conf.all.send_redirects
+    value: 0
+    sysctl_set: yes
+    state: present
+    reload: yes
