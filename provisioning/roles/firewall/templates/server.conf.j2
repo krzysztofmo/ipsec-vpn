@@ -1,0 +1,23 @@
+table filter {
+  chain INPUT {
+    # Deny connections by default
+    policy DROP;
+
+    # Connection tracking
+    mod state state INVALID DROP;
+    mod state state (ESTABLISHED RELATED) ACCEPT;
+
+    # Allow local connections
+    interface lo ACCEPT;
+
+    # Respond to ping
+    proto icmp icmp-type (echo-request echo-reply) ACCEPT;
+
+    # Allow SSH connections
+    proto tcp dport ssh ACCEPT;
+
+    {# Allow encrypted connections between hosts from ipsec_peers.yml #}
+    proto esp ACCEPT;
+    proto udp dport (500 4500) ACCEPT;
+  }
+}

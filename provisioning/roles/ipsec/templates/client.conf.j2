@@ -1,22 +1,16 @@
-# ipsec.conf - strongSwan IPsec configuration file
+# /etc/ipsec.conf - strongSwan IPsec configuration file
 
-config setup
-  # uniqueids=never
-  charondebug="cfg 2, dmn 2, ike 2, net 2"
-
-conn %default
-  ike=aes256-sha256-modp2048!
-  esp=aes256-sha256-modp2048!
+conn server
+  auto = start # establish connection automatically on daemon start
+  keyexchange=ikev2
+  authby = secret # PSK (ipsec.secrets)
+  ike = aes256gcm128-prfsha512-modp3072! # cipher suite phase 1 (key exchange)
+  esp = aes256gcm128-prfsha512-modp3072! # cipher suite phase 2 (data transmission)
   #dpdaction=clear
   #dpddelay=300s
-  #rekey=no
-  left={{ ipsec.left_ip }}
-  #leftsubnet=0.0.0.0/0
-  right={{ ipsec.right_ip }}
-  #rightdns=8.8.8.8,8.8.4.4
-  #rightsourceip=172.16.16.0/24
-
-conn ipsec-ikev2
-  authby = secret
-  keyexchange=ikev2
-  auto=add
+  left = %any #  %defaultroute # 192.168.1.20
+  leftsourceip = %config
+  right = 192.168.1.10 # where to connect
+  #rightsubnet = 0.0.0.0/0
+  rightsubnet = 217.0.0.0/8
+  #rightsourceip = 10.1.0.10
