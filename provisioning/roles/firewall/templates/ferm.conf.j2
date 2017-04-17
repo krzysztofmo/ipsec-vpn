@@ -9,9 +9,6 @@ table filter {
     mod state state INVALID DROP;
     mod state state (ESTABLISHED RELATED) ACCEPT;
 
-    # Allow local connections
-    interface lo ACCEPT;
-
     # Respond to pings
     proto icmp icmp-type (echo-request echo-reply) ACCEPT;
 

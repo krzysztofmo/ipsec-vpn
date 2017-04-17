@@ -35,20 +35,13 @@ Vagrant.configure("2") do |config|
           ansible.host_vars = {
               client: {
                   ipsec: "'#{{
-                      conn_name: 'server',
-                      ip: ADDRESSES[:client],
-                      left_ip: '%any',
-                      right_ip: ADDRESSES[:server],
-                      right_subnet: '10.1.0.10/32'
+                      local_ip: ADDRESSES[:client],
+                      remote_ip: ADDRESSES[:server]
                   }.to_json}'"
               },
               server: {
                   ipsec: "'#{{
-                      conn_name: 'client',
-                      ip: ADDRESSES[:server],
-                      left_ip: '%any',
-                      right_ip: '%any',
-                      left_subnet: '10.1.0.10/32'
+                      local_ip: ADDRESSES[:server]
                   }.to_json}'"
               }
           }

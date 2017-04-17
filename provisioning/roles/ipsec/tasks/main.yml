@@ -4,16 +4,7 @@
     name: strongswan
     state: present
 
-#- name: Copy strongSwan configuration
-#  copy:
-#    src: ipsec.conf
-#    dest: /etc/ipsec.conf
-#    owner: root
-#    group: root
-#    mode: 0600
-#  notify: restart strongswan
-#
-- name: Create configuration for
+- name: Create configuration files for strongSwan
   template:
     src: "{{ item }}.j2"
     dest: /etc/{{ item }}

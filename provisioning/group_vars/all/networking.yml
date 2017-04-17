@@ -1,2 +1,0 @@
----
-iface: "{{ ansible_interfaces | map('regex_replace', '(.*)', 'ansible_\\1') | map('extract', hostvars[inventory_hostname]) | selectattr('ipv4.address', 'equalto', ipsec.ip) | map(attribute='device') | first }}"

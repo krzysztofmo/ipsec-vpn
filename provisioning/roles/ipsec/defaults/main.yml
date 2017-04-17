@@ -1,13 +1,13 @@
 ---
-ciphers:
-  defaults:
+defaults:
+  ciphers:
     ike: aes128gcm16-sha2_512-prfsha512-ecp256!
     esp: aes128gcm16-sha2_512-ecp256!
-  compat:
-    ike: aes128gcm16-sha2_512-prfsha512-ecp256,aes128-sha2_512-prfsha512-ecp256,aes128-sha2_256-prfsha256-modp2048!
-    esp: aes128gcm16-sha2_512-ecp256,aes128-sha2_512-ecp256,aes128-sha2_256-modp2048!
+  conn:
+    subnet: 217.0.0.0/8
+    dns: 8.8.8.8,8.8.4.4
+    source_ip: 172.16.16.0/24
 
-vpn:
-  subnet: 217.0.0.0/8
-  dns: 8.8.8.8,8.8.4.4
-  sourceip: 172.16.16.0/24
+iface:
+  device: "{{ ansible_interfaces | map('regex_replace', '(.*)', 'ansible_\\1') | map('extract', hostvars[inventory_hostname]) | selectattr('ipv4.address', 'equalto', ipsec.local_ip) | map(attribute='device') | first }}"
+

@@ -9,7 +9,7 @@ charon {
         plugins {
                 include strongswan.d/charon/*.conf
         }
-        interfaces_use = {{ iface }} # public interface (it also contains eth0:1)
+        interfaces_use = {{ iface.device }} # public interface (it also contains eth0:1)
 }
 
 include strongswan.d/*.conf

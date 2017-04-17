@@ -2,16 +2,16 @@
 
 conn %default
   keyexchange = ikev2
-  ike = {{ ciphers.defaults.ike }}
-  esp = {{ ciphers.defaults.esp }}
+  ike = {{ defaults.ciphers.ike }}
+  esp = {{ defaults.ciphers.esp }}
   auto = add
 
-conn client
+conn vpn
   authby = secret
   dpdaction = clear
   dpddelay = 300s
   left = %any
-  leftsubnet = {{ vpn.subnet }}
+  leftsubnet = {{ defaults.conn.subnet }}
   right = %any
-  rightdns = {{ vpn.dns }}
-  rightsourceip = {{ vpn.sourceip }}
+  rightdns = {{ defaults.conn.dns }}
+  rightsourceip = {{ defaults.conn.source_ip }}
