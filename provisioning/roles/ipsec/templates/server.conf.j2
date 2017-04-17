@@ -1,11 +1,13 @@
 # /etc/ipsec.conf - strongSwan IPsec configuration file
 
+conn %default
+  ike = {{ ciphers.defaults.ike }}
+  esp = {{ ciphers.defaults.esp }}
+
 conn client
   auto = add # establish connection automatically on daemon start
   keyexchange=ikev2
   authby = secret # PSK (ipsec.secrets)
-  ike = aes256gcm128-prfsha512-modp3072! # cipher suite phase 1 (key exchange)
-  esp = aes256gcm128-prfsha512-modp3072! # cipher suite phase 2 (data transmission)
   dpdaction=clear
   dpddelay=300s
   left = %any # 192.168.1.10
