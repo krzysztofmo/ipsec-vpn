@@ -1,5 +1,5 @@
 ---
-# Set ip forwarding on in /proc and in the sysctl file and reload if necessary
+# Set ip forwarding on
 - name: Set ip forwarding on
   sysctl:
     name: net.ipv4.ip_forward

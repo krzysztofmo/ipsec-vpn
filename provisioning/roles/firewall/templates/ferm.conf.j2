@@ -12,35 +12,30 @@ table filter {
     # Allow local connections
     interface lo ACCEPT;
 
-    # Respond to ping
+    # Respond to pings
     proto icmp icmp-type (echo-request echo-reply) ACCEPT;
 
-    # Allow SSH connections
+    # Allow all SSH connections
     proto tcp dport ssh ACCEPT;
 
-    {# Allow encrypted connections between hosts from ipsec_peers.yml #}
+    # Allow IPSec connections
     proto esp ACCEPT;
     proto udp dport (500 4500) ACCEPT;
   }
 
-  # Allow outgoing connection by default
-  chain OUTPUT {
-    policy ACCEPT;
+  chain FORWARD {
+    # No connection forwarding by default
+    policy DROP;
 
-    {# Block unencrypted connections between hosts from ipsec_peers.yml #}
-    # daddr {{ ipsec.right_ip }} proto esp ACCEPT;
-    # daddr {{ ipsec.right_ip }} proto udp dport (500 4500) ACCEPT;
-    # daddr {{ ipsec.right_ip }} proto icmp icmp-type (echo-request echo-reply) ACCEPT;
-    # daddr {{ ipsec.right_ip }} REJECT reject-with icmp-port-unreachable;
+    # Forward only packets that came through the IPSec tunnel
+    mod policy dir (in out) pol ipsec ACCEPT;
   }
-
-  # no connection forwarding
-  # chain FORWARD policy DROP;
 }
 
 table nat {
   chain POSTROUTING {
-    # outerface {{ ansible_default_ipv4.interface }} ! proto esp SNAT to {{ ansible_default_ipv4.address }};
+    # Allow traffic to flow from the VPN clients to the internet
     outerface {{ ansible_default_ipv4.interface }} SNAT to {{ ansible_default_ipv4.address }};
   }
+
 }
