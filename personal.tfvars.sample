@@ -1,0 +1,2 @@
+do_user = "droplet default user"
+do_ssh_key = "your ssh key fingerprint (as shown in settings page @DO"

@@ -2,11 +2,21 @@
 .vagrant/
 *.log
 
+## Ignore ansible host file
+provisioning/inventory
+
+## Ignore terraform specific files
+# variable with some personal stuff
+personal.tfvars
+
+# terraform state
+terraform.tfstate*
+
 ## Ignore JetBrains IDE specific files/directories
 # Dir-based project format
 .idea/
 
-# File-based project format
+# file-based project format
 *.iws
 *.iml
 *.ipr
