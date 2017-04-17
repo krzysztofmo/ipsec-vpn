@@ -4,11 +4,11 @@ conn %default
   keyexchange = ikev2
   ike = {{ ciphers.defaults.ike }}
   esp = {{ ciphers.defaults.esp }}
+  auto = start # establish connection automatically on daemon start
 
 conn server
-  auto = start # establish connection automatically on daemon start
   authby = secret
   left = %any
   leftsourceip = %config
   right = 192.168.1.10 # where to connect
-  rightsubnet = 217.0.0.0/8
+  rightsubnet = {{ vpn.subnet }}
