@@ -8,11 +8,7 @@ conn server
   auto = start # establish connection automatically on daemon start
   keyexchange=ikev2
   authby = secret # PSK (ipsec.secrets)
-  #dpdaction=clear
-  #dpddelay=300s
   left = %any #  %defaultroute # 192.168.1.20
   leftsourceip = %config
   right = 192.168.1.10 # where to connect
-  #rightsubnet = 0.0.0.0/0
   rightsubnet = 217.0.0.0/8
-  #rightsourceip = 10.1.0.10
