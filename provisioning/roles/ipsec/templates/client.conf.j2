@@ -1,14 +1,14 @@
 # /etc/ipsec.conf - strongSwan IPsec configuration file
 
 conn %default
+  keyexchange = ikev2
   ike = {{ ciphers.defaults.ike }}
   esp = {{ ciphers.defaults.esp }}
 
 conn server
   auto = start # establish connection automatically on daemon start
-  keyexchange=ikev2
-  authby = secret # PSK (ipsec.secrets)
-  left = %any #  %defaultroute # 192.168.1.20
+  authby = secret
+  left = %any
   leftsourceip = %config
   right = 192.168.1.10 # where to connect
   rightsubnet = 217.0.0.0/8
